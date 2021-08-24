@@ -5,6 +5,7 @@
 part of flutter_blue;
 
 typedef BluetoothCallback = Future<void> Function(Map map);
+typedef BluetoothCallbackDouble = Future<void> Function(double value);
 typedef BluetoothErrorCallback = Future<void> Function(Error error);
 
 class FlutterBlue {
@@ -51,7 +52,7 @@ class FlutterBlue {
   Stream<List> get scanResults => _scanResults.stream;
   BluetoothCallback _onDiscovered;
   BluetoothCallback _onCallBackMap;
-  BluetoothCallback _onCallBackTemperature;
+  BluetoothCallbackDouble _onCallBackTemperature;
   BluetoothErrorCallback _onError;
 
   Future<int> bluetoothSession({
@@ -66,16 +67,16 @@ class FlutterBlue {
     return _channel2.invokeMethod('StartBluetoothContent', {"index": index ?? -1, 'pollingOptions': "aaa", 'alertMessage': alertMessage});
   }
 
-  Future<double> bluetoothGetTemperature({BluetoothCallback onDiscovered}) async {
+  Future<double> bluetoothGetTemperature({BluetoothCallbackDouble onDiscovered}) async {
     _onCallBackTemperature = onDiscovered;
 
     return _channel2.invokeMethod('BluetoothGetDeviceInfo', {"index": 1});
   }
 
   Future bluetoothGetOther(DeviceInfoType type, {BluetoothCallback onDiscovered}) async {
-    if (type == DeviceInfoType.temperature) {
-      return bluetoothGetTemperature(onDiscovered: onDiscovered);
-    }
+    // if (type == DeviceInfoType.temperature) {
+    //   return bluetoothGetTemperature(onDiscovered: onDiscovered);
+    // }
     int index = 1;
     if (type == DeviceInfoType.acceleration) {
       index = 2;
@@ -130,8 +131,18 @@ class FlutterBlue {
   }
 
   void _handleOnCallBackTemperature(MethodCall call) async {
+    String _value = call.arguments.toString();
+    double _doubleValue = -1.0;
+    try {
+      _doubleValue = double.parse(_value);
+    } catch (e) {}
     if (_onCallBackTemperature != null) {
-      await _onCallBackTemperature(call.arguments);
+      if (_onCallBackTemperature is BluetoothCallbackDouble) {
+        await _onCallBackTemperature(_doubleValue);
+      }
+    }
+    if (_onCallBackMap != null) {
+      await _onCallBackMap({"value": _doubleValue});
     }
   }
 
