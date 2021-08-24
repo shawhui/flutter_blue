@@ -33,9 +33,9 @@ class FlutterBlueApp extends StatelessWidget {
 }
 
 class BluetoothOffScreen extends StatelessWidget {
-  const BluetoothOffScreen({Key? key, this.state}) : super(key: key);
+  const BluetoothOffScreen({Key key, this.state}) : super(key: key);
 
-  final BluetoothState? state;
+  final BluetoothState state;
 
   @override
   Widget build(BuildContext context) {
@@ -103,14 +103,14 @@ class FindDevicesScreen extends StatelessWidget {
               stream: FlutterBlue.instance.scanResults,
               initialData: [],
               builder: (c, snapshot) => Column(
-                children: snapshot.data!.map(
+                children: snapshot.data.map(
                   (r) {
                     print(r);
                     return GestureDetector(
                       onTap: () async {
                         print("r: $r");
                         print("print start");
-                        int _index = snapshot.data!.indexOf(r);
+                        int _index = snapshot.data.indexOf(r);
 
                         print("_index: $_index");
                         var a = await FlutterBlue.instance.bluetoothSession(
@@ -217,7 +217,7 @@ class FindDevicesScreen extends StatelessWidget {
         stream: FlutterBlue.instance.isScanning,
         initialData: false,
         builder: (c, snapshot) {
-          if (snapshot.data!) {
+          if (snapshot.data ?? false) {
             return FloatingActionButton(
               child: Icon(Icons.stop),
               onPressed: () => FlutterBlue.instance.stopScan(),
@@ -239,7 +239,7 @@ class FindDevicesScreen extends StatelessWidget {
 }
 
 class DeviceScreen extends StatelessWidget {
-  const DeviceScreen({Key? key, required this.device}) : super(key: key);
+  const DeviceScreen({Key key, @required this.device}) : super(key: key);
 
   final BluetoothDevice device;
 
@@ -293,7 +293,7 @@ class DeviceScreen extends StatelessWidget {
             stream: device.state,
             initialData: BluetoothDeviceState.connecting,
             builder: (c, snapshot) {
-              VoidCallback? onPressed;
+              VoidCallback onPressed;
               String text;
               switch (snapshot.data) {
                 case BluetoothDeviceState.connected:
@@ -333,7 +333,7 @@ class DeviceScreen extends StatelessWidget {
                   stream: device.isDiscoveringServices,
                   initialData: false,
                   builder: (c, snapshot) => IndexedStack(
-                    index: snapshot.data! ? 1 : 0,
+                    index: (snapshot.data ?? false) ? 1 : 0,
                     children: <Widget>[
                       IconButton(
                         icon: Icon(Icons.refresh),
@@ -371,7 +371,7 @@ class DeviceScreen extends StatelessWidget {
               initialData: [],
               builder: (c, snapshot) {
                 return Column(
-                  children: _buildServiceTiles(snapshot.data!),
+                  children: _buildServiceTiles(snapshot.data),
                 );
               },
             ),

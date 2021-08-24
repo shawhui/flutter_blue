@@ -49,15 +49,15 @@ class FlutterBlue {
   /// One use for [scanResults] is as the stream in a StreamBuilder to display the
   /// results of a scan in real time while the scan is in progress.
   Stream<List> get scanResults => _scanResults.stream;
-  late BluetoothCallback _onDiscovered;
-  BluetoothErrorCallback? _onError;
+  BluetoothCallback _onDiscovered;
+  BluetoothErrorCallback _onError;
 
-  Future<int?> bluetoothSession({
-    required BluetoothCallback onDiscovered,
+  Future<int> bluetoothSession({
+    BluetoothCallback onDiscovered,
     // Set<NfcPollingOption> pollingOptions,
-    int? index,
+    int index,
     String alertMessage = "msg",
-    BluetoothErrorCallback? onError,
+    BluetoothErrorCallback onError,
   }) async {
     _onDiscovered = onDiscovered;
     _onError = onError;
@@ -128,7 +128,7 @@ class FlutterBlue {
     ScanMode scanMode = ScanMode.lowLatency,
     List<Guid> withServices = const [],
     List<Guid> withDevices = const [],
-    Duration? timeout,
+    Duration timeout,
     bool allowDuplicates = false,
   }) async* {
     var settings = protos.ScanSettings.create()
@@ -209,7 +209,7 @@ class FlutterBlue {
     ScanMode scanMode = ScanMode.lowLatency,
     List<Guid> withServices = const [],
     List<Guid> withDevices = const [],
-    Duration? timeout,
+    Duration timeout,
     bool allowDuplicates = false,
   }) async {
     await scan(scanMode: scanMode, withServices: withServices, withDevices: withDevices, timeout: timeout, allowDuplicates: allowDuplicates).drain();
@@ -310,7 +310,7 @@ class ScanResult {
 
 class AdvertisementData {
   final String localName;
-  final int? txPowerLevel;
+  final int txPowerLevel;
   final bool connectable;
   final Map<int, List<int>> manufacturerData;
   final Map<String, List<int>> serviceData;
