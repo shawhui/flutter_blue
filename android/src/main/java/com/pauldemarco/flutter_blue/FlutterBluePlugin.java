@@ -459,7 +459,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                             @Override
                             public void run() {
                                 //已在主线程中，更新UI
-                                bluetoothResult.success(value);
+//                                bluetoothResult.success(value);
                                 channel2.invokeMethod("callBackTemperature", value.toString());
                             }
                         });
@@ -511,7 +511,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                             @Override
                             public void run() {
                                 //已在主线程中，更新UI
-                                bluetoothResult.success(treeMap);
+//                                bluetoothResult.success(treeMap);
                                 channel2.invokeMethod("callBackOther", treeMap);
                             }
                         });
