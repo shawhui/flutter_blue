@@ -1,4 +1,5 @@
 include ':sensorlib-release1.0.1'
+include ':sensorlib-release1.0.1'
 include ':app'
 
 def localPropertiesFile = new File(rootProject.projectDir, "local.properties")

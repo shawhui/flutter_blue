@@ -77,6 +77,8 @@ dependencies {
     implementation project(':sensorlib-release1.0.1')
 
 
+
+
 //    provided files('libs/sensorlib-release1.0.1.aar')
 //    implementation files('libs/sensorlib-release1.0.1.aar')
 //    implementation fileTree(dir: 'libs', include: ['*.aar'])
