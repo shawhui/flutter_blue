@@ -379,6 +379,163 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 
     }
 
+    public void getBluetoothInfo(HashMap hashMap, final Result result) {
+        int position = -1;
+        try {
+            position = (int) hashMap.get("index");
+        } catch (RuntimeException e) {
+        }
+        if (position < 0 && position > 4) {
+            return;
+        }
+
+        // 1. 温度
+        // 2. 加速度
+        // 3. 速度
+        // 4. 位移
+        mSampParam.setSampFreq(SampFreq.f_10000);
+        mSampParam.setSampLength(SampLength.l_1024);
+
+        switch (position) {
+            case 1: {
+                mSampParam.setSampType(SampType.temperature);
+                break;
+            }
+            case 2: {
+                mSampParam.setSampType(SampType.acceleration);
+                break;
+            }
+            case 3: {
+                mSampParam.setSampType(SampType.velocity);
+                break;
+            }
+            case 4: {
+                mSampParam.setSampType(SampType.displacement);
+                break;
+            }
+        }
+        samp();
+
+
+    }
+
+    private void samp() {
+        Log.e(this.getClass().getName(), "23456");
+        Log.e(this.getClass().getName(), String.valueOf(mSampParam.getSampType()));
+
+//
+        switch (mSampParam.getSampType()) {
+            case temperature:
+                sampTemp();
+                break;
+            default:
+                sampVibrate();
+        }
+    }
+
+    //采集温度
+    private void sampTemp() {
+        RxSamp.sampTemp()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Float>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(Float aFloat) {
+                        ToastUtils.showShort("成功");
+                        // mTextViewValue.setText(aFloat + "℃");
+                        // mTextViewBattery.setText("温度采集不回传电量");
+                        // mTextViewWave.setText("");
+                        final Float value = aFloat;
+                        Handler mainHandler = new Handler(Looper.getMainLooper());
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //已在主线程中，更新UI
+                                bluetoothResult.success(value);
+                                channel2.invokeMethod("callBackTemperature", value.toString());
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        ToastUtils.showShort("错误：" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+//                        ToastUtils.showShort("错误：22222");
+                    }
+                });
+    }
+
+    //采集振动
+    private void sampVibrate() {
+        ToastUtils.showShort("预计耗时" + mSampParam.getSampMinisecond() / 1000 + "秒");
+        RxSamp.sampVibrate(mSampParam)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<VibrationData>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(VibrationData vibrationData) {
+
+                        ToastUtils.showShort("成功");
+
+                        Float battery = vibrationData.getBattery();
+                        Float measuringValue1 = vibrationData.getMeasuringValue1();
+                        String sampType = vibrationData.getSampType();
+                        ArrayList waves = vibrationData.getWave1();
+
+                        final TreeMap treeMap = new TreeMap();
+                        treeMap.put("battery", battery);
+                        treeMap.put("measuringValue1", measuringValue1);
+                        treeMap.put("sampType", sampType);
+                        treeMap.put("waves", waves);
+
+
+                        Handler mainHandler = new Handler(Looper.getMainLooper());
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //已在主线程中，更新UI
+                                bluetoothResult.success(treeMap);
+                                channel2.invokeMethod("callBackOther", treeMap);
+                            }
+                        });
+
+//                        mTextViewBattery.setText(vibrationData.getBattery() + "%");
+//                        mTextViewValue.setText(vibrationData.getMeasuringValue1() + vibrationData.getSampType().getEngineerUnit());
+//                        StringBuilder builder = new StringBuilder();
+//                        for (double d : vibrationData.getWave1()) {
+//                            d = ((int) (d * 100)) / 100d;
+//                            builder.append(d + ",");
+//                        }
+//                        mTextViewWave.setText(builder.toString());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        ToastUtils.showShort("错误：" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        ToastUtils.showShort("错误：1111111");
+
+                    }
+                });
+    }
+
     @Override
     public void onMethodCall(MethodCall call, Result result) {
         if (mBluetoothAdapter == null && !"isAvailable".equals(call.method)) {
@@ -401,6 +558,14 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 //                Map _map = call.arguments;
 //                logLevel = LogLevel.values()[logLevelIndex1];
 //                result.success(null);
+                break;
+            }
+            case "BluetoothGetDeviceInfo": {
+                /// 获取温度
+                log(LogLevel.ERROR, "**** 获取温度");
+                HashMap hashMap = (HashMap) call.arguments;
+                getBluetoothInfo(hashMap, result);
+
                 break;
             }
 

@@ -50,6 +50,8 @@ class FlutterBlue {
   /// results of a scan in real time while the scan is in progress.
   Stream<List> get scanResults => _scanResults.stream;
   BluetoothCallback _onDiscovered;
+  BluetoothCallback _onCallBackMap;
+  BluetoothCallback _onCallBackTemperature;
   BluetoothErrorCallback _onError;
 
   Future<int> bluetoothSession({
@@ -64,12 +66,43 @@ class FlutterBlue {
     return _channel2.invokeMethod('StartBluetoothContent', {"index": index ?? -1, 'pollingOptions': "aaa", 'alertMessage': alertMessage});
   }
 
-  // _handleMethodCall
+  Future<double> bluetoothGetTemperature({BluetoothCallback onDiscovered}) async {
+    _onCallBackTemperature = onDiscovered;
+
+    return _channel2.invokeMethod('BluetoothGetDeviceInfo', {"index": 1});
+  }
+
+  Future bluetoothGetOther(DeviceInfoType type, {BluetoothCallback onDiscovered}) async {
+    if (type == DeviceInfoType.temperature) {
+      return bluetoothGetTemperature(onDiscovered: onDiscovered);
+    }
+    int index = 1;
+    if (type == DeviceInfoType.acceleration) {
+      index = 2;
+    }
+    if (type == DeviceInfoType.speed) {
+      index = 3;
+    }
+    if (type == DeviceInfoType.displacement) {
+      index = 4;
+    }
+    _onCallBackMap = onDiscovered;
+
+    return _channel2.invokeMethod('BluetoothGetDeviceInfo', {"index": index});
+  }
+
+// _handleMethodCall
   Future<void> _handleMethodCall(MethodCall call) async {
     print("*** 10010");
     switch (call.method) {
       case 'onDiscovered':
         _handleOnDiscovered(call);
+        break;
+      case 'callBackTemperature':
+        _handleOnCallBackTemperature(call);
+        break;
+      case 'callBackOther':
+        _handleOnCallBackOther(call);
         break;
       case 'onError':
         // _handleOnError(call);
@@ -79,7 +112,7 @@ class FlutterBlue {
     }
   }
 
-  // _handleOnDiscovered
+// _handleOnDiscovered
   void _handleOnDiscovered(MethodCall call) async {
     print("*******1");
     // final tag = $GetNfcTag(Map.from(call.arguments));
@@ -88,6 +121,18 @@ class FlutterBlue {
       await _onDiscovered(Map.from(call.arguments));
     }
     // await _disposeTag(tag.handle);
+  }
+
+  void _handleOnCallBackOther(MethodCall call) async {
+    if (_onCallBackMap != null) {
+      await _onCallBackMap(Map.from(call.arguments));
+    }
+  }
+
+  void _handleOnCallBackTemperature(MethodCall call) async {
+    if (_onCallBackTemperature != null) {
+      await _onCallBackTemperature(call.arguments);
+    }
   }
 
   PublishSubject _stopScanPill = new PublishSubject();
@@ -256,6 +301,14 @@ enum LogLevel {
   notice,
   info,
   debug,
+}
+
+/// Log levels for FlutterBlue
+enum DeviceInfoType {
+  temperature,
+  speed,
+  acceleration,
+  displacement,
 }
 
 /// State of the bluetooth adapter.
