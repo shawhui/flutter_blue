@@ -533,7 +533,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 
                     @Override
                     public void onComplete() {
-                        ToastUtils.showShort("错误：1111111");
+//                        ToastUtils.showShort("错误：1111111");
 
                     }
                 });
