@@ -72,9 +72,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 import com.mxunjc.sensorlib.sensor.RxSamp;
+import com.mxunjc.sensorlib.sensor.SampFreq;
+import com.mxunjc.sensorlib.sensor.SampLength;
 import com.mxunjc.sensorlib.sensor.SampType;
 import com.mxunjc.sensorlib.sensor.entity.BluetoothSensor;
 import com.mxunjc.sensorlib.sensor.entity.SampParam;
+import com.mxunjc.sensorlib.sensor.entity.VibrationData;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -491,10 +494,10 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 
                         ToastUtils.showShort("成功");
 
-                        Float battery = vibrationData.getBattery();
+                        int battery = vibrationData.getBattery();
                         Float measuringValue1 = vibrationData.getMeasuringValue1();
-                        String sampType = vibrationData.getSampType();
-                        ArrayList waves = vibrationData.getWave1();
+                        String sampType = vibrationData.getSampType().getEngineerUnit();
+                        double[] waves = vibrationData.getWave1();
 
                         final TreeMap treeMap = new TreeMap();
                         treeMap.put("battery", battery);
