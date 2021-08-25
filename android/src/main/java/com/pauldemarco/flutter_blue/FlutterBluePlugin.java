@@ -232,6 +232,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 ////        scanner.startScan(filters, settings, getScanCallback21());
 
         //扫描蓝牙设备
+        Log.e("扫描蓝牙设备", "开始扫描");
         RxSamp.scanSensor()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -258,14 +259,6 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                             _myBluetoothSensor.put("name", bluetoothName);
                             _myBluetoothSensor.put("address", bluetoothSensor.getAddress());
                             mSensorsMap.add(_myBluetoothSensor);
-//                                mAdapter.notifyDataSetChanged();
-                            Log.e("A***", String.valueOf(bluetoothSensor.getAddress()));
-                            // DC:0D:30:00:19:12
-//                            }
-//                            stateChannel.
-                            Log.e("add", String.valueOf(bluetoothName));
-//                            myResult.success(mNames);
-//                            invokeMethodUIThread("ScanResult", mNames.toByteArray());
                             activity.runOnUiThread(
                                     new Runnable() {
                                         @Override
@@ -310,15 +303,6 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
             return;
         }
         bluetoothResult = result;
-        // log(LogLevel.ERROR, "" + hashMap.get("index"));
-        // log(LogLevel.ERROR, hashMap.toString());
-        // mSensors.add(bluetoothSensor);
-        // mNames.add(bluetoothName);
-        // BluetoothSensor bluetoothSensor = mSensors.get((int) hashMap.get("index"));
-        // String bluetoothSensorName = mNames.get((int) hashMap.get("index"));
-        // Log.e("contentBluetooth", bluetoothSensor.getAddress());
-        // Log.e("contentBluetooth", bluetoothSensorName);
-
 
         BluetoothSensor sensor = mSensors.get(position);
 
@@ -327,17 +311,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
             @Override
             public void onConnected() {
                 //连接成功
-//                ActivityUtils.startActivity(MainActivity.class);
-                Log.e("onConnected", "连接蓝牙传感器 success");
                 try {
-                    // activity.runOnUiThread{ channel2.invokeMethod("onDiscovered", getTagMap(it).toMutableMap().apply { put("handle", handle) }) }
-//                    activity.runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            // bluetoothResult.success(1);
-//                            // channel2.invokeMethod("onDiscovered", new HashMap());
-//                        }
-//                    });
                     Handler mainHandler = new Handler(Looper.getMainLooper());
                     mainHandler.post(new Runnable() {
                         @Override
@@ -352,34 +326,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                 }
             }
         });
-//        //连接蓝牙传感器
-//        sensor.setOnConnectedListener(new BluetoothSensor.OnConnectListener() {
-//            @Override
-//            public void onConnected() {
-//                //连接成功
-////                ActivityUtils.startActivity(MainActivity.class);
-//                Log.e("onConnected", "连接蓝牙传感器 success");
-//                try {
-////                    activity.runOnUiThread { channel2.invokeMethod("onDiscovered", getTagMap(it).toMutableMap().apply { put("handle", handle) }) }
-//
-//
-//                    Handler mainHandler = new Handler(Looper.getMainLooper());
-//                    mainHandler.post(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            //已在主线程中，更新UI
-//                            bluetoothResult.success(1);
-//                            channel2.invokeMethod("onDiscovered", new HashMap());
-//                        }
-//                    });
-//                } catch (RuntimeException e) {
-//                    Log.e("onConnected", e.getMessage());
-//                }
-//            }
-//        });
-
         sensor.connect();
-
     }
 
     public void getBluetoothInfo(HashMap hashMap, final Result result) {
@@ -418,15 +365,9 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
             }
         }
         samp();
-
-
     }
 
     private void samp() {
-        Log.e(this.getClass().getName(), "23456");
-        Log.e(this.getClass().getName(), String.valueOf(mSampParam.getSampType()));
-
-//
         switch (mSampParam.getSampType()) {
             case temperature:
                 sampTemp();
@@ -444,15 +385,11 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                 .subscribe(new Observer<Float>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
                     }
 
                     @Override
                     public void onNext(Float aFloat) {
                         ToastUtils.showShort("成功");
-                        // mTextViewValue.setText(aFloat + "℃");
-                        // mTextViewBattery.setText("温度采集不回传电量");
-                        // mTextViewWave.setText("");
                         final Float value = aFloat;
                         Handler mainHandler = new Handler(Looper.getMainLooper());
                         mainHandler.post(new Runnable() {
@@ -496,7 +433,6 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                 .subscribe(new Observer<VibrationData>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
                     }
 
                     @Override
@@ -525,20 +461,10 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                                 channel2.invokeMethod("callBackOther", treeMap);
                             }
                         });
-
-//                        mTextViewBattery.setText(vibrationData.getBattery() + "%");
-//                        mTextViewValue.setText(vibrationData.getMeasuringValue1() + vibrationData.getSampType().getEngineerUnit());
-//                        StringBuilder builder = new StringBuilder();
-//                        for (double d : vibrationData.getWave1()) {
-//                            d = ((int) (d * 100)) / 100d;
-//                            builder.append(d + ",");
-//                        }
-//                        mTextViewWave.setText(builder.toString());
                     }
 
                     @Override
                     public void onError(Throwable e) {
-//
                         final TreeMap treeMap = new TreeMap();
                         treeMap.put("error", e.getMessage());
                         Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -549,14 +475,12 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                                 channel2.invokeMethod("bluetoothOnError", treeMap);
                             }
                         });
-
 //                        ToastUtils.showShort("错误：" + e.getMessage());
                     }
 
                     @Override
                     public void onComplete() {
 //                        ToastUtils.showShort("错误：1111111");
-
                     }
                 });
     }
@@ -576,42 +500,69 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                 break;
             }
             case "StartBluetoothContent": {
-//                log(LogLevel.ERROR, "**** 100001");
                 HashMap hashMap = (HashMap) call.arguments;
                 contentBluetooth(hashMap, result);
-
-//                Map _map = call.arguments;
-//                logLevel = LogLevel.values()[logLevelIndex1];
 //                result.success(null);
                 break;
             }
             case "BluetoothGetDeviceInfo": {
                 /// 获取温度
-//                log(LogLevel.ERROR, "**** 获取温度");
                 HashMap hashMap = (HashMap) call.arguments;
                 getBluetoothInfo(hashMap, result);
 
                 break;
             }
             case "isBluetoothConnected": {
-                result.success(RxSamp.getBluetoothHolder().isConnected());
+                result.success((RxSamp.getBluetoothHolder().isConnected() && RxSamp.getBluetoothHolder().getConnectedDevice() != null));
                 break;
             }
-            case "BluetoothDisConnected": {
-                RxSamp.getBluetoothHolder().stopScan();
+//            case "BluetoothDisConnected": {
+//                RxSamp.getBluetoothHolder().stopScan();
+//                result.success(null);
+//                // result.success(RxSamp.getBluetoothHolder().isConnected());
+//                break;
+//            }
+
+            case "bluetoothPowerOff": {
+                /// 关机
+                RxSamp.getDefaultSensor().powerOff();
                 result.success(null);
-                // result.success(RxSamp.getBluetoothHolder().isConnected());
                 break;
             }
 
-            case "isBluetoothDisConnected": {
-                RxSamp.getDefaultSensor().powerOff();
-//                RxSamp.getBluetoothHolder().stopScan();
+            case "bluetoothHoldOn": {
+                // 等待
+                RxSamp.getDefaultSensor().holdOn();
                 result.success(null);
                 break;
             }
+            case "isBluetoothPowerOn": {
+                /// 开机
+                RxSamp.getDefaultSensor().powerOn();
+                result.success(null);
+                break;
+            }
+            case "isBluetoothStartScan": {
+                RxSamp.getBluetoothHolder().startScan();
+                result.success(null);
+                break;
+            }
+            case "isBluetoothStopScan": {
+                RxSamp.getBluetoothHolder().stopScan();
+//                RxSamp.getBluetoothHolder().mSppApi
+                result.success(null);
+                break;
+            }
+            case "isBluetoothBtEnabled": {
+                result.success(RxSamp.getBluetoothHolder().isBtEnabled());
+                break;
+            }
             case "isBluetoothConnectedDevice": {
-                result.success(RxSamp.getBluetoothHolder().getConnectedDevice());
+                if (RxSamp.getBluetoothHolder().getConnectedDevice() != null) {
+                    result.success(RxSamp.getBluetoothHolder().getConnectedDevice().getName());
+                } else {
+                    result.success("设备未连接");
+                }
                 break;
             }
 
@@ -667,7 +618,6 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                     break;
                 }
 //                startBluetooth(call, result);
-
                 startScan(call, result);
                 break;
             }

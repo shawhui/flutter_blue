@@ -95,6 +95,42 @@ class FlutterBlue {
     return _channel2.invokeMethod('BluetoothGetDeviceInfo', {"index": index});
   }
 
+  Future isBluetoothConnected() async {
+    return _channel2.invokeMethod('isBluetoothConnected');
+  }
+
+  Future bluetoothConnectedDevice() async {
+    return _channel2.invokeMethod('isBluetoothConnectedDevice');
+  }
+
+  Future isBluetoothStopScan() async {
+    // 停止扫描
+    return _channel2.invokeMethod('isBluetoothStopScan');
+  }
+
+  Future isBluetoothStartScan() async {
+    // 开始扫描
+    return _channel2.invokeMethod('isBluetoothStartScan');
+  }
+
+
+  Future bluetoothPowerOff() async {
+    return _channel2.invokeMethod('bluetoothPowerOff');
+  }
+
+  Future bluetoothHoldOn() async {
+    return _channel2.invokeMethod('bluetoothHoldOn');
+  }
+
+  Future isBluetoothPowerOn() async {
+    return _channel2.invokeMethod('isBluetoothPowerOn');
+  }
+
+  Future isBluetoothBtEnabled() async {
+    return _channel2.invokeMethod('isBluetoothBtEnabled');
+  }
+
+
 // _handleMethodCall
   Future<void> _handleMethodCall(MethodCall call) async {
     print("*** 10010");
