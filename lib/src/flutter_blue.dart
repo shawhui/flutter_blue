@@ -6,7 +6,7 @@ part of flutter_blue;
 
 typedef BluetoothCallback = Future<void> Function(Map map);
 typedef BluetoothCallbackDouble = Future<void> Function(double value);
-typedef BluetoothErrorCallback = Future<void> Function(Error error);
+typedef BluetoothErrorCallback = Future<void> Function(Map map);
 
 class FlutterBlue {
   final MethodChannel _channel = const MethodChannel('$NAMESPACE/methods');
@@ -67,16 +67,19 @@ class FlutterBlue {
     return _channel2.invokeMethod('StartBluetoothContent', {"index": index ?? -1, 'pollingOptions': "aaa", 'alertMessage': alertMessage});
   }
 
-  Future<double> bluetoothGetTemperature({BluetoothCallbackDouble onDiscovered}) async {
+  Future<double> bluetoothGetTemperature({BluetoothCallbackDouble onDiscovered, BluetoothErrorCallback onError}) async {
     _onCallBackTemperature = onDiscovered;
+    _onError = onError;
 
     return _channel2.invokeMethod('BluetoothGetDeviceInfo', {"index": 1});
   }
 
-  Future bluetoothGetOther(DeviceInfoType type, {BluetoothCallback onDiscovered}) async {
+  Future bluetoothGetOther(DeviceInfoType type, {BluetoothCallback onDiscovered, BluetoothErrorCallback onError}) async {
     // if (type == DeviceInfoType.temperature) {
     //   return bluetoothGetTemperature(onDiscovered: onDiscovered);
     // }
+    _onError = onError;
+
     int index = 1;
     if (type == DeviceInfoType.acceleration) {
       index = 2;
@@ -105,14 +108,19 @@ class FlutterBlue {
       case 'callBackOther':
         _handleOnCallBackOther(call);
         break;
-      case 'onError':
-        // _handleOnError(call);
+      case 'bluetoothOnError':
+        _handleOnError(call);
         break;
       default:
         throw ('Not implemented: ${call.method}');
     }
   }
 
+  _handleOnError(MethodCall call) async {
+    if (_onError != null) {
+      await _onError(Map.from(call.arguments));
+    }
+  }
 // _handleOnDiscovered
   void _handleOnDiscovered(MethodCall call) async {
     print("*******1");
@@ -268,7 +276,11 @@ class FlutterBlue {
     Duration timeout,
     bool allowDuplicates = false,
   }) async {
-    await scan(scanMode: scanMode, withServices: withServices, withDevices: withDevices, timeout: timeout, allowDuplicates: allowDuplicates).drain();
+    await scan(scanMode: scanMode,
+        withServices: withServices,
+        withDevices: withDevices,
+        timeout: timeout,
+        allowDuplicates: allowDuplicates).drain();
     return _scanResults.value;
   }
 

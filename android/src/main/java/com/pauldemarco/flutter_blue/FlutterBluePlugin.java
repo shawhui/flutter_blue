@@ -467,7 +467,17 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 
                     @Override
                     public void onError(Throwable e) {
-                        ToastUtils.showShort("错误：" + e.getMessage());
+//                        ToastUtils.showShort("错误：" + e.getMessage());
+                        final TreeMap treeMap = new TreeMap();
+                        treeMap.put("error", e.getMessage());
+                        Handler mainHandler = new Handler(Looper.getMainLooper());
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //已在主线程中，更新UI
+                                channel2.invokeMethod("bluetoothOnError", treeMap);
+                            }
+                        });
                     }
 
                     @Override
@@ -528,7 +538,19 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 
                     @Override
                     public void onError(Throwable e) {
-                        ToastUtils.showShort("错误：" + e.getMessage());
+//
+                        final TreeMap treeMap = new TreeMap();
+                        treeMap.put("error", e.getMessage());
+                        Handler mainHandler = new Handler(Looper.getMainLooper());
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //已在主线程中，更新UI
+                                channel2.invokeMethod("bluetoothOnError", treeMap);
+                            }
+                        });
+
+//                        ToastUtils.showShort("错误：" + e.getMessage());
                     }
 
                     @Override
@@ -554,7 +576,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                 break;
             }
             case "StartBluetoothContent": {
-                log(LogLevel.ERROR, "**** 100001");
+//                log(LogLevel.ERROR, "**** 100001");
                 HashMap hashMap = (HashMap) call.arguments;
                 contentBluetooth(hashMap, result);
 
@@ -565,10 +587,31 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
             }
             case "BluetoothGetDeviceInfo": {
                 /// 获取温度
-                log(LogLevel.ERROR, "**** 获取温度");
+//                log(LogLevel.ERROR, "**** 获取温度");
                 HashMap hashMap = (HashMap) call.arguments;
                 getBluetoothInfo(hashMap, result);
 
+                break;
+            }
+            case "isBluetoothConnected": {
+                result.success(RxSamp.getBluetoothHolder().isConnected());
+                break;
+            }
+            case "BluetoothDisConnected": {
+                RxSamp.getBluetoothHolder().stopScan();
+                result.success(null);
+                // result.success(RxSamp.getBluetoothHolder().isConnected());
+                break;
+            }
+
+            case "isBluetoothDisConnected": {
+                RxSamp.getDefaultSensor().powerOff();
+//                RxSamp.getBluetoothHolder().stopScan();
+                result.success(null);
+                break;
+            }
+            case "isBluetoothConnectedDevice": {
+                result.success(RxSamp.getBluetoothHolder().getConnectedDevice());
                 break;
             }
 
