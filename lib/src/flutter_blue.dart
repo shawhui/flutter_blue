@@ -50,6 +50,7 @@ class FlutterBlue {
   /// One use for [scanResults] is as the stream in a StreamBuilder to display the
   /// results of a scan in real time while the scan is in progress.
   Stream<List> get scanResults => _scanResults.stream;
+  Function _scanResultsList;
   BluetoothCallback _onDiscovered;
   BluetoothCallback _onCallBackMap;
   BluetoothCallbackDouble _onCallBackTemperature;
@@ -147,9 +148,17 @@ class FlutterBlue {
       case 'bluetoothOnError':
         _handleOnError(call);
         break;
+      case 'ScanResult1':
+        _showResult(call);
+        break;
       default:
         throw ('Not implemented: ${call.method}');
     }
+  }
+
+  _showResult(MethodCall call) async {
+    print("23456");
+    _scanResultsList(call.arguments);
   }
 
   _handleOnError(MethodCall call) async {
@@ -157,6 +166,7 @@ class FlutterBlue {
       await _onError(Map.from(call.arguments));
     }
   }
+
 // _handleOnDiscovered
   void _handleOnDiscovered(MethodCall call) async {
     print("*******1");
@@ -193,13 +203,15 @@ class FlutterBlue {
   PublishSubject _stopScanPill = new PublishSubject();
 
   /// Gets the current state of the Bluetooth module
-  Stream<BluetoothState> get state async* {
-    yield await _channel.invokeMethod('state').then((buffer) => new protos.BluetoothState.fromBuffer(buffer)).then((s) => BluetoothState.values[s.state.value]);
-
-    yield* _stateChannel
-        .receiveBroadcastStream()
-        .map((buffer) => new protos.BluetoothState.fromBuffer(buffer))
-        .map((s) => BluetoothState.values[s.state.value]);
+  Future<bool> get state async {
+    return await _channel.invokeMethod(
+        'state'); //.then((buffer) => new protos.BluetoothState.fromBuffer(buffer)).then((s) => BluetoothState.values[s.state.value]);
+    // yield await _channel.invokeMethod('state').then((buffer) => new protos.BluetoothState.fromBuffer(buffer)).then((s) => BluetoothState.values[s.state.value]);
+    //
+    // yield* _stateChannel
+    //     .receiveBroadcastStream()
+    //     .map((buffer) => new protos.BluetoothState.fromBuffer(buffer))
+    //     .map((s) => BluetoothState.values[s.state.value]);
   }
 
   /// Retrieve a list of connected devices
@@ -230,71 +242,78 @@ class FlutterBlue {
     List<Guid> withDevices = const [],
     Duration timeout,
     bool allowDuplicates = false,
+    bool isAndroid = true,
   }) async* {
-    var settings = protos.ScanSettings.create()
-      ..androidScanMode = scanMode.value
-      ..allowDuplicates = allowDuplicates
-      ..serviceUuids.addAll(withServices.map((g) => g.toString()).toList());
+    if (isAndroid) {
+      await _channel.invokeMethod('startScan');
+    } else {
+      print("****123456");
+      var settings = protos.ScanSettings.create()
+        ..androidScanMode = scanMode.value
+        ..allowDuplicates = allowDuplicates
+        ..serviceUuids.addAll(withServices.map((g) => g.toString()).toList());
 
-    if (_isScanning.value == true) {
-      throw Exception('Another scan is already in progress.');
-    }
-
-    // Emit to isScanning
-    _isScanning.add(true);
-
-    final killStreams = <Stream>[];
-    killStreams.add(_stopScanPill);
-    if (timeout != null) {
-      killStreams.add(Rx.timer(null, timeout));
-    }
-
-    // Clear scan results list
-    _scanResults.add([]);
-
-    try {
-      await _channel.invokeMethod('startScan', settings.writeToBuffer());
-    } catch (e) {
-      print('Error starting scan.');
-      _stopScanPill.add(null);
-      _isScanning.add(false);
-      throw e;
-    }
-
-    yield* FlutterBlue.instance._methodStream
-        .where((m) => m.method == "ScanResult")
-        .map((m) => m.arguments)
-        .takeUntil(Rx.merge(killStreams))
-        .doOnDone(stopScan)
-        .map((buffer) => new protos.ScanResult.fromBuffer(buffer))
-        .map((p) {
-      final result = new ScanResult.fromProto(p);
-      final list = _scanResults.value ?? [];
-      // if (result.device.name != "") {
-      int index = list.indexOf(result);
-      if (index != -1) {
-        list[index] = result;
-      } else {
-        list.add(result);
-      }
-      _scanResults.add(list);
+      // if (_isScanning.value == true) {
+      //   throw Exception('Another scan is already in progress.');
       // }
-      return result;
-    });
-    yield* FlutterBlue.instance._methodStream1.where((m) => m.method == "ScanResult1").map((m) => m.arguments).map((p) {
-      final list = _scanResults.value ?? [];
 
-      int index = list.indexOf(p);
-      if (index != -1) {
-        list[index] = p;
-      } else {
-        _scanResults.add(p);
+      // Emit to isScanning
+      _isScanning.add(true);
+
+      final killStreams = <Stream>[];
+      killStreams.add(_stopScanPill);
+      if (timeout != null) {
+        killStreams.add(Rx.timer(null, timeout));
       }
-      // _scanResults.add(p);
-      print("map: $p");
 
-      return p;
-    });
+      // Clear scan results list
+      _scanResults.add([]);
+
+      try {
+        await _channel.invokeMethod('startScan', settings.writeToBuffer());
+      } catch (e) {
+        print('Error starting scan.');
+        _stopScanPill.add(null);
+        _isScanning.add(false);
+        throw e;
+      }
+
+      yield* FlutterBlue.instance._methodStream
+          .where((m) => m.method == "ScanResult")
+          .map((m) => m.arguments)
+          .takeUntil(Rx.merge(killStreams))
+          .doOnDone(stopScan)
+          .map((buffer) => new protos.ScanResult.fromBuffer(buffer))
+          .map((p) {
+        final result = new ScanResult.fromProto(p);
+        final list = _scanResults.value ?? [];
+        // if (result.device.name != "") {
+        int index = list.indexOf(result);
+        if (index != -1) {
+          list[index] = result;
+        } else {
+          list.add(result);
+        }
+        _scanResults.add(list);
+        // }
+        return result;
+      });
+      yield* FlutterBlue.instance._methodStream1.where((m) => m.method == "ScanResult1").map((m) => m.arguments).map((p) {
+        print("****1111");
+        final list = _scanResults.value ?? [];
+
+        int index = list.indexOf(p);
+        if (index != -1) {
+          list[index] = p;
+        } else {
+          _scanResults.add(p);
+        }
+        // _scanResults.add(p);
+        print("map: $p");
+
+        return p;
+      });
+    }
   }
 
   /// Starts a scan and returns a future that will complete once the scan has finished.
@@ -305,12 +324,34 @@ class FlutterBlue {
   ///
   /// To observe the results while the scan is in progress, listen to the [scanResults] stream,
   /// or call [scan] instead.
-  Future startScan({
+  Future startScanBlutTooth({
+    ScanMode scanMode = ScanMode.lowLatency,
+    List<Guid> withServices = const [],
+    List<Guid> withDevices = const [],
+    Duration timeout,
+    Function scanResultsList,
+    bool allowDuplicates = false,
+    bool isAndroid = true,
+
+  }) async {
+    _scanResultsList = scanResultsList;
+    await scan(scanMode: scanMode,
+        withServices: withServices,
+        withDevices: withDevices,
+        timeout: timeout,
+        isAndroid: isAndroid,
+        allowDuplicates: allowDuplicates).drain();
+
+    return _scanResults.value;
+  }
+
+  Future startScan1({
     ScanMode scanMode = ScanMode.lowLatency,
     List<Guid> withServices = const [],
     List<Guid> withDevices = const [],
     Duration timeout,
     bool allowDuplicates = false,
+
   }) async {
     await scan(scanMode: scanMode,
         withServices: withServices,
