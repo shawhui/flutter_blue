@@ -76,10 +76,9 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
           });
     });
   }
+
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Find Devices'),
@@ -239,72 +238,74 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
                   },
                 ).toList(),
               ),
-            StreamBuilder<List>(
-              stream: FlutterBlue.instance.scanResults,
-              initialData: [],
-              builder: (c, snapshot) => Column(
-                children: snapshot.data.map(
-                  (r) {
-                    print(r);
-                    return GestureDetector(
-                      onTap: () async {
-                        print("r: $r");
-                        print("print start");
-                        int _index = snapshot.data.indexOf(r);
+            true
+                ? Container()
+                : StreamBuilder<List>(
+                    stream: FlutterBlue.instance.scanResults,
+                    initialData: [],
+                    builder: (c, snapshot) => Column(
+                      children: snapshot.data.map(
+                        (r) {
+                          print(r);
+                          return GestureDetector(
+                            onTap: () async {
+                              print("r: $r");
+                              print("print start");
+                              int _index = snapshot.data.indexOf(r);
 
-                        print("_index: $_index");
-                        var a = await FlutterBlue.instance.bluetoothSession(
-                          onDiscovered: (map) async {
-                            print("map: $map");
-                          },
-                          index: _index,
-                        );
-                        if (a != null && a is int && a == 1) {
-                          print("*** a: $a");
+                              print("_index: $_index");
+                              var a = await FlutterBlue.instance.bluetoothSession(
+                                onDiscovered: (map) async {
+                                  print("map: $map");
+                                },
+                                index: _index,
+                              );
+                              if (a != null && a is int && a == 1) {
+                                print("*** a: $a");
 
-                          // show(context);
-                          //
-                          // showDialog<Null>(
-                          //   context: context,
-                          //   barrierDismissible: false,
-                          //   builder: (BuildContext context) {
-                          //     return new AlertDialog(
-                          //       title: new Text('标题'),
-                          //       content: new SingleChildScrollView(
-                          //         child: new ListBody(
-                          //           children: <Widget>[
-                          //             new Text('内容 1'),
-                          //             new Text('内容 2'),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //       actions: <Widget>[
-                          //         new FlatButton(
-                          //           child: new Text('确定'),
-                          //           onPressed: () {
-                          //             Navigator.of(context).pop();
-                          //           },
-                          //         ),
-                          //       ],
-                          //     );
-                          //   },
-                          // ).then((val) {
-                          //   print(val);
-                          // });
-                        }
-                      },
-                      child: Container(
-                        color: Colors.transparent,
-                        alignment: Alignment.center,
-                        margin: EdgeInsets.symmetric(vertical: 10),
-                        padding: EdgeInsets.symmetric(vertical: 40),
-                        child: Text("-- ${r['name']} --"),
-                      ),
-                    );
-                  },
-                ).toList(),
-              ),
-            ),
+                                // show(context);
+                                //
+                                // showDialog<Null>(
+                                //   context: context,
+                                //   barrierDismissible: false,
+                                //   builder: (BuildContext context) {
+                                //     return new AlertDialog(
+                                //       title: new Text('标题'),
+                                //       content: new SingleChildScrollView(
+                                //         child: new ListBody(
+                                //           children: <Widget>[
+                                //             new Text('内容 1'),
+                                //             new Text('内容 2'),
+                                //           ],
+                                //         ),
+                                //       ),
+                                //       actions: <Widget>[
+                                //         new FlatButton(
+                                //           child: new Text('确定'),
+                                //           onPressed: () {
+                                //             Navigator.of(context).pop();
+                                //           },
+                                //         ),
+                                //       ],
+                                //     );
+                                //   },
+                                // ).then((val) {
+                                //   print(val);
+                                // });
+                              }
+                            },
+                            child: Container(
+                              color: Colors.transparent,
+                              alignment: Alignment.center,
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: Text("-- ${r['name']} --"),
+                            ),
+                          );
+                        },
+                      ).toList(),
+                    ),
+                  ),
           ],
         ),
       ),
@@ -322,7 +323,7 @@ class _FindDevicesScreenState extends State<FindDevicesScreen> {
             return FloatingActionButton(
                 child: Icon(Icons.search),
                 onPressed: () async {
-                  // var value = await FlutterBlue.instance.startScan(timeout: Duration(seconds: 1));
+                  var value = await FlutterBlue.instance.startScanBlutTooth(timeout: Duration(seconds: 1));
                   // print("value:$value");
                 });
           }

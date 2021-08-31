@@ -219,6 +219,9 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 
         //扫描蓝牙设备
         Log.e("扫描蓝牙设备", "开始扫描");
+        mSensors.clear();
+        mNames.clear();
+        mSensorsMap.clear();
         RxSamp.scanSensor()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -245,7 +248,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                             _myBluetoothSensor.put("name", bluetoothName);
                             _myBluetoothSensor.put("address", bluetoothSensor.getAddress());
                             mSensorsMap.add(_myBluetoothSensor);
-                            Log.e("A***", String.valueOf(bluetoothSensor.getAddress()));
+//                            Log.e("A***", String.valueOf(bluetoothSensor.getAddress()));
 
                             activity.runOnUiThread(
                                     new Runnable() {
@@ -259,7 +262,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 
                     @Override
                     public void onError(Throwable e) {
-                        ToastUtils.showShort(e.getMessage());
+//                        ToastUtils.showShort(e.getMessage());
                     }
 
                     @Override
@@ -377,7 +380,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 
                     @Override
                     public void onNext(Float aFloat) {
-                        ToastUtils.showShort("成功");
+//                        ToastUtils.showShort("成功");
                         final Float value = aFloat;
                         Handler mainHandler = new Handler(Looper.getMainLooper());
                         mainHandler.post(new Runnable() {
@@ -414,7 +417,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
 
     //采集振动
     private void sampVibrate() {
-        ToastUtils.showShort("预计耗时" + mSampParam.getSampMinisecond() / 1000 + "秒");
+//        ToastUtils.showShort("预计耗时" + mSampParam.getSampMinisecond() / 1000 + "秒");
         RxSamp.sampVibrate(mSampParam)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -426,7 +429,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                     @Override
                     public void onNext(VibrationData vibrationData) {
 
-                        ToastUtils.showShort("成功");
+//                        ToastUtils.showShort("成功");
 
                         int battery = vibrationData.getBattery();
                         Float measuringValue1 = vibrationData.getMeasuringValue1();
@@ -463,7 +466,7 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                                 channel2.invokeMethod("bluetoothOnError", treeMap);
                             }
                         });
-                        // ToastUtils.showShort("错误：" + e.getMessage());
+//                         ToastUtils.showShort("错误：" + e.getMessage());
                     }
 
                     @Override
