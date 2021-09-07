@@ -241,22 +241,23 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                         }
                         if (isNew) {
                             String bluetoothName = bluetoothSensor.getName();
-//                            if (bluetoothName != null && String.valueOf(bluetoothName).startsWith("A")) {
-                            mSensors.add(bluetoothSensor);
-                            mNames.add(bluetoothName);
-                            HashMap _myBluetoothSensor = new HashMap();
-                            _myBluetoothSensor.put("name", bluetoothName);
-                            _myBluetoothSensor.put("address", bluetoothSensor.getAddress());
-                            mSensorsMap.add(_myBluetoothSensor);
+                            if (bluetoothName != null && String.valueOf(bluetoothName).startsWith("A")) {
+                                mSensors.add(bluetoothSensor);
+                                mNames.add(bluetoothName);
+                                HashMap _myBluetoothSensor = new HashMap();
+                                _myBluetoothSensor.put("name", bluetoothName);
+                                _myBluetoothSensor.put("address", bluetoothSensor.getAddress());
+                                mSensorsMap.add(_myBluetoothSensor);
 //                            Log.e("A***", String.valueOf(bluetoothSensor.getAddress()));
 
-                            activity.runOnUiThread(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            channel2.invokeMethod("ScanResult1", mSensorsMap);
-                                        }
-                                    });
+                                activity.runOnUiThread(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                channel2.invokeMethod("ScanResult1", mSensorsMap);
+                                            }
+                                        });
+                            }
                         }
                     }
 
