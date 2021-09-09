@@ -129,6 +129,11 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
         mSampParam.setSampType(SampType.temperature);
     }
 
+
+    private SampFreq sampFreq = SampFreq.f_10000;
+    private SampLength sampLength = SampLength.l_1024;
+
+
     /**
      * Plugin registration.
      */
@@ -335,8 +340,8 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
         // 2. 加速度
         // 3. 速度
         // 4. 位移
-        mSampParam.setSampFreq(SampFreq.f_10000);
-        mSampParam.setSampLength(SampLength.l_1024);
+        mSampParam.setSampFreq(sampFreq);
+        mSampParam.setSampLength(sampLength);
 
         switch (position) {
             case 1: {
@@ -488,6 +493,65 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
             case "setLogLevel": {
                 int logLevelIndex = (int) call.arguments;
                 logLevel = LogLevel.values()[logLevelIndex];
+                result.success(null);
+                break;
+            }
+            case "changeSampValues": {
+                // sampFreq: 125, 250, 500, 1250, 2500, 4000, 5000, 10000, 20000, 25000,50000
+                // sampLength: 1024,2048,4096,8192,16384,32768,32768
+
+                HashMap hashMap = (HashMap) call.arguments;
+                try {
+                    int sampFreqValue = (int) hashMap.get("sampFreq");
+                    if (sampFreqValue == 125) {
+                        sampFreq = SampFreq.f_125;
+                    } else if (sampFreqValue == 250) {
+                        sampFreq = SampFreq.f_250;
+                    } else if (sampFreqValue == 500) {
+                        sampFreq = SampFreq.f_500;
+                    } else if (sampFreqValue == 1250) {
+                        sampFreq = SampFreq.f_1250;
+                    } else if (sampFreqValue == 2500) {
+                        sampFreq = SampFreq.f_2500;
+                    } else if (sampFreqValue == 4000) {
+                        sampFreq = SampFreq.f_4000;
+                    } else if (sampFreqValue == 5000) {
+                        sampFreq = SampFreq.f_5000;
+                    } else if (sampFreqValue == 10000) {
+                        sampFreq = SampFreq.f_10000;
+                    } else if (sampFreqValue == 20000) {
+                        sampFreq = SampFreq.f_20000;
+                    } else if (sampFreqValue == 25000) {
+                        sampFreq = SampFreq.f_25000;
+                    } else if (sampFreqValue == 50000) {
+                        sampFreq = SampFreq.f_50000;
+                    } else {
+                        sampFreq = SampFreq.f_10000;
+                    }
+
+                } catch (Exception e) {
+                }
+                try {
+                    int sampLengthValue = (int) hashMap.get("sampLength");
+                    if (sampLengthValue == 1024) {
+                        sampLength = SampLength.l_1024;
+                    } else if (sampLengthValue == 2048) {
+                        sampLength = SampLength.l_2048;
+                    } else if (sampLengthValue == 4096) {
+                        sampLength = SampLength.l_4096;
+                    } else if (sampLengthValue == 8192) {
+                        sampLength = SampLength.l_8192;
+                    } else if (sampLengthValue == 16384) {
+                        sampLength = SampLength.l_16384;
+                    } else if (sampLengthValue == 32768) {
+                        sampLength = SampLength.l_32768;
+                    } else if (sampLengthValue == 32768) {
+                        sampLength = SampLength.l_1024;
+                    }
+
+                } catch (Exception e) {
+                }
+
                 result.success(null);
                 break;
             }

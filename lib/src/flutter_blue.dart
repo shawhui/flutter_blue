@@ -114,6 +114,68 @@ class FlutterBlue {
     return _channel2.invokeMethod('isBluetoothStartScan');
   }
 
+  Future changeBluetoothSampValues(SAMPFREQValue sampFreq, SAMPLENGTHValue sampLength) async {
+    // sampFreq: 125, 250, 500, 1250, 2500, 4000, 5000, 10000, 20000, 25000,50000
+    // sampLength: 1024,2048,4096,8192,16384,32768,32768
+
+    return _channel2.invokeMethod('changeSampValues', {
+      "sampFreq": _getSampFreqValues(sampFreq),
+      "sampLength": _getSampLengthValues(sampLength),
+    });
+  }
+
+  int _getSampFreqValues(SAMPFREQValue sampFreq) {
+    // sampFreq: 125, 250, 500, 1250, 2500, 4000, 5000, 10000, 20000, 25000,50000
+    switch (sampFreq) {
+      case SAMPFREQValue.s_125:
+        return 125;
+      case SAMPFREQValue.s_250:
+        return 250;
+
+      case SAMPFREQValue.s_500:
+        return 500;
+      case SAMPFREQValue.s_1250:
+        return 1250;
+
+      case SAMPFREQValue.s_2500:
+        return 2500;
+      case SAMPFREQValue.s_4000:
+        return 4000;
+
+      case SAMPFREQValue.s_5000:
+        return 5000;
+      case SAMPFREQValue.s_10000:
+        return 10000;
+      case SAMPFREQValue.s_20000:
+        return 20000;
+
+      case SAMPFREQValue.s_25000:
+        return 25000;
+      case SAMPFREQValue.s_50000:
+        return 50000;
+    }
+
+    return 0;
+  }
+
+  int _getSampLengthValues(SAMPLENGTHValue sampLength) {
+    // sampLength: 1024,2048,4096,8192,16384,32768,32768
+    switch (sampLength) {
+      case SAMPLENGTHValue.l_1024:
+        return 1024;
+      case SAMPLENGTHValue.l_2048:
+        return 2048;
+      case SAMPLENGTHValue.l_4096:
+        return 4096;
+      case SAMPLENGTHValue.l_8192:
+        return 8192;
+      case SAMPLENGTHValue.l_16384:
+        return 16384;
+      case SAMPLENGTHValue.l_32768:
+        return 32768;
+    }
+    return 0;
+  }
 
   Future bluetoothPowerOff() async {
     return _channel2.invokeMethod('bluetoothPowerOff');
@@ -130,7 +192,6 @@ class FlutterBlue {
   Future isBluetoothBtEnabled() async {
     return _channel2.invokeMethod('isBluetoothBtEnabled');
   }
-
 
 // _handleMethodCall
   Future<void> _handleMethodCall(MethodCall call) async {
@@ -204,8 +265,8 @@ class FlutterBlue {
 
   /// Gets the current state of the Bluetooth module
   Future<bool> get state async {
-    return await _channel.invokeMethod(
-        'state'); //.then((buffer) => new protos.BluetoothState.fromBuffer(buffer)).then((s) => BluetoothState.values[s.state.value]);
+    return await _channel
+        .invokeMethod('state'); //.then((buffer) => new protos.BluetoothState.fromBuffer(buffer)).then((s) => BluetoothState.values[s.state.value]);
     // yield await _channel.invokeMethod('state').then((buffer) => new protos.BluetoothState.fromBuffer(buffer)).then((s) => BluetoothState.values[s.state.value]);
     //
     // yield* _stateChannel
@@ -332,15 +393,11 @@ class FlutterBlue {
     Function scanResultsList,
     bool allowDuplicates = false,
     bool isAndroid = true,
-
   }) async {
     _scanResultsList = scanResultsList;
-    await scan(scanMode: scanMode,
-        withServices: withServices,
-        withDevices: withDevices,
-        timeout: timeout,
-        isAndroid: isAndroid,
-        allowDuplicates: allowDuplicates).drain();
+    await scan(
+            scanMode: scanMode, withServices: withServices, withDevices: withDevices, timeout: timeout, isAndroid: isAndroid, allowDuplicates: allowDuplicates)
+        .drain();
 
     return _scanResults.value;
   }
@@ -351,13 +408,8 @@ class FlutterBlue {
     List<Guid> withDevices = const [],
     Duration timeout,
     bool allowDuplicates = false,
-
   }) async {
-    await scan(scanMode: scanMode,
-        withServices: withServices,
-        withDevices: withDevices,
-        timeout: timeout,
-        allowDuplicates: allowDuplicates).drain();
+    await scan(scanMode: scanMode, withServices: withServices, withDevices: withDevices, timeout: timeout, allowDuplicates: allowDuplicates).drain();
     return _scanResults.value;
   }
 
@@ -482,3 +534,9 @@ class AdvertisementData {
     return 'AdvertisementData{localName: $localName, txPowerLevel: $txPowerLevel, connectable: $connectable, manufacturerData: $manufacturerData, serviceData: $serviceData, serviceUuids: $serviceUuids}';
   }
 }
+// sampFreq: 125, 250, 500, 1250, 2500, 4000, 5000, 10000, 20000, 25000,50000
+// sampLength: 1024,2048,4096,8192,16384,32768,32768
+
+enum SAMPFREQValue { s_125, s_250, s_500, s_1250, s_2500, s_4000, s_5000, s_10000, s_20000, s_25000, s_50000 }
+
+enum SAMPLENGTHValue { l_1024, l_2048, l_4096, l_8192, l_16384, l_32768 }
